@@ -57,11 +57,14 @@ if (is_post()) {
     if (!$error) {
         // 0. Η βάση πρέπει να είναι άδεια ή να έχει μόνο πίνακες του MyMedia (π.χ. από μισή εγκατάσταση).
         //    Δεν αγγίζουμε ποτέ πίνακες άλλης εφαρμογής.
-        $ours = ['settings', 'users', 'businesses', 'memberships', 'invitations', 'tools', 'plans', 'tool_requests',
-                 'subscriptions', 'invoices', 'invoice_lines', 'tickets', 'ticket_messages', 'notifications',
-                 'login_attempts', 'password_resets', 'migrations'];
+        // Οι πίνακες που φτιάχνουν τα δικά μας migrations (πύλη και εργαλεία)
+        $ours = ['migrations'];
+        foreach (migration_files() as $file) {
+            preg_match_all('/CREATE TABLE (?:IF NOT EXISTS )?`?(\w+)`?/i', (string) file_get_contents($file), $mm);
+            $ours = array_merge($ours, $mm[1]);
+        }
         $tables = array_map(fn($r) => (string) array_values($r)[0], qall('SHOW TABLES'));
-        $foreign = array_values(array_filter(array_diff($tables, $ours), fn($t) => !str_starts_with($t, 'qr_')));
+        $foreign = array_values(array_diff($tables, $ours));
         if (in_array('migrations', $tables, true) && !qval("SHOW COLUMNS FROM migrations LIKE 'name'")) {
             $foreign[] = 'migrations';
         }

@@ -65,6 +65,9 @@ if (is_post()) {
 if (preg_match('#^q/([A-Za-z0-9]{4,16})(/.*)?$#', $path, $m)) {
     dispatch_public('qr-boss', $m[1] . ($m[2] ?? ''));
 }
+if (preg_match('#^r/([A-Za-z0-9]{4,16})(/.*)?$#', $path, $m)) {
+    dispatch_public('review-booster', $m[1] . ($m[2] ?? ''));
+}
 if (preg_match('#^p/([a-z0-9-]+)(?:/(.*))?$#', $path, $m)) {
     dispatch_public($m[1], $m[2] ?? '');
 }

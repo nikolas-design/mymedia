@@ -1,6 +1,6 @@
 <?php require __DIR__ . '/_tabs.php'; $link = qr_public_url($c['code']); ?>
-<script src="<?= e(url('modules/qr-boss/assets/qrcode.js')) ?>" defer></script>
-<script src="<?= e(url('modules/qr-boss/assets/qr.js')) ?>" defer></script>
+<script src="<?= e(asset('vendor/qrcode.js')) ?>" defer></script>
+<script src="<?= e(asset('qr.js')) ?>" defer></script>
 <a class="back" href="<?= e(module_url('qr-boss', 'codes')) ?>"><?= icon('back', 14) ?> Κωδικοί QR</a>
 
 <div class="cols">

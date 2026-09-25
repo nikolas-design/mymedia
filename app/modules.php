@@ -55,6 +55,12 @@ function dispatch_module(string $slug, string $subpath): never
 
     // Διαθέσιμα στο module: $user, $business, $tool, $subscription, $subpath
     $subpath = trim($subpath, '/');
+    $GLOBALS['module_ctx'] = [
+        'user' => $user, 'business' => $business, 'tool' => $tool, 'subscription' => $subscription,
+        'bid' => (int) $business['id'], 'canEdit' => has_role('owner', 'manager'),
+        'pro' => stripos((string) $subscription['plan_name'], 'pro') !== false,
+    ];
+    extract($GLOBALS['module_ctx'], EXTR_SKIP); // $bid, $canEdit, $pro
     require module_dir($slug) . '/index.php';
     exit;
 }
@@ -155,4 +161,74 @@ function delete_upload(?string $rel): void
     if ($rel && !str_contains($rel, '..')) {
         @unlink(APP_ROOT . '/uploads/' . $rel);
     }
+}
+
+/**
+ * Δημόσια σελίδα εργαλείου (χωρίς το μενού της πύλης), με το χρώμα της επιχείρησης.
+ * $file: πλήρης διαδρομή προβολής, π.χ. __DIR__ . '/views/public_rate.php'
+ */
+function public_page(string $file, array $data, string $title, string $color = '#793de7', ?string $logo = null): never
+{
+    extract($data, EXTR_SKIP);
+    $color = preg_match('/^#[0-9a-fA-F]{6}$/', $color) ? $color : '#793de7';
+    require APP_ROOT . '/app/views/public_layout.php';
+    exit;
+}
+
+/**
+ * Σελίδα εργαλείου με τα κοινά δεδομένα (business, tool, subscription, bid, canEdit, pro)
+ * και την ενεργή καρτέλα. Η προβολή είναι στο modules/<slug>/views/<view>.php
+ */
+function module_page(string $view, array $data, string $title, string $tab = ''): never
+{
+    $ctx = $GLOBALS['module_ctx'];
+    module_render($ctx['tool']['slug'], $view, $data + $ctx + ['tab' => $tab], ['title' => $title . ' · ' . $ctx['tool']['name']]);
+}
+
+/**
+ * Κεφαλίδα εργαλείου με καρτέλες. $tabs: [[κλειδί, διαδρομή, ετικέτα, μετρητής?], ...]
+ */
+function module_tabs(array $tabs, string $current): string
+{
+    $ctx = $GLOBALS['module_ctx'];
+    $t = $ctx['tool'];
+    $html = '<div class="toolhd">' . tile($t['icon'], $t['color'], 44) . '<div><h1>' . e($t['name']) . '</h1><span class="small muted">'
+        . e($ctx['subscription']['plan_name']) . ' · ' . e($ctx['business']['name']) . '</span></div></div><nav class="tabs">';
+    foreach ($tabs as $tab) {
+        [$key, $path, $label] = $tab;
+        $count = (int) ($tab[3] ?? 0);
+        $html .= '<a href="' . e(module_url($t['slug'], $path)) . '" class="' . ($key === $current ? 'on' : '') . '">' . e($label)
+            . ($count ? ' <span class="cnt">' . $count . '</span>' : '') . '</a>';
+    }
+    return $html . '</nav>';
+}
+
+function module_require_edit(): void
+{
+    if (!$GLOBALS['module_ctx']['canEdit']) {
+        forbidden();
+    }
+}
+
+/** Μπάρες ανά ημέρα: $daily = ['Y-m-d' => n] */
+function day_bars(array $daily): string
+{
+    $max = max(1, max($daily ?: [0]));
+    $days = ['Κυ', 'Δε', 'Τρ', 'Τε', 'Πε', 'Πα', 'Σα'];
+    $bars = $labels = '';
+    foreach ($daily as $d => $n) {
+        $bars .= '<i style="height:' . round($n / $max * 100) . '%" title="' . e(date_gr($d, false)) . ': ' . $n . '"></i>';
+        $labels .= '<span>' . $days[(int) date('w', strtotime($d))] . '</span>';
+    }
+    return '<div class="bars">' . $bars . '</div><div class="barlbl">' . $labels . '</div>';
+}
+
+/** Κενός πίνακας ημερών ['Y-m-d' => 0] για τις τελευταίες $days ημέρες */
+function empty_days(int $days): array
+{
+    $out = [];
+    for ($i = $days - 1; $i >= 0; $i--) {
+        $out[date('Y-m-d', strtotime("-$i days"))] = 0;
+    }
+    return $out;
 }

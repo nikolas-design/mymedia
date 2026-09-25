@@ -36,6 +36,6 @@
   </div>
 <?php endforeach; ?>
 </div>
-<script src="<?= e(url('modules/qr-boss/assets/qrcode.js')) ?>"></script>
-<script src="<?= e(url('modules/qr-boss/assets/qr.js')) ?>"></script>
+<script src="<?= e(asset('vendor/qrcode.js')) ?>"></script>
+<script src="<?= e(asset('qr.js')) ?>"></script>
 </body></html>

@@ -245,3 +245,14 @@ function send_mail(string $to, string $subject, string $body): bool
     ];
     return @mail($to, '=?UTF-8?B?' . base64_encode($subject) . '?=', $body, implode("\r\n", $headers));
 }
+
+/** Τυχαίος σύντομος κωδικός για δημόσιους συνδέσμους (χωρίς χαρακτήρες που μπερδεύονται) */
+function short_code(int $len = 7): string
+{
+    $alphabet = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    $code = '';
+    for ($i = 0; $i < $len; $i++) {
+        $code .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+    }
+    return $code;
+}

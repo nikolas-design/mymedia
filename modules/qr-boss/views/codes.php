@@ -1,6 +1,6 @@
 <?php require __DIR__ . '/_tabs.php'; ?>
-<script src="<?= e(url('modules/qr-boss/assets/qrcode.js')) ?>" defer></script>
-<script src="<?= e(url('modules/qr-boss/assets/qr.js')) ?>" defer></script>
+<script src="<?= e(asset('vendor/qrcode.js')) ?>" defer></script>
+<script src="<?= e(asset('qr.js')) ?>" defer></script>
 
 <div class="cols">
 <div>
