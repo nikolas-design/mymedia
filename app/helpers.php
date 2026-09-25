@@ -11,7 +11,12 @@ function base_path(): string
 {
     static $base = null;
     if ($base === null) {
-        $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+        if (PHP_SAPI === 'cli') {
+            // Από cron: η διαδρομή έρχεται από το base_url του config
+            $base = rtrim((string) parse_url((string) ($GLOBALS['config']['base_url'] ?? ''), PHP_URL_PATH), '/');
+        } else {
+            $base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/')), '/');
+        }
     }
     return $base;
 }
@@ -23,6 +28,9 @@ function url(string $path = ''): string
 
 function full_url(string $path = ''): string
 {
+    if (!empty($GLOBALS['config']['base_url']) && (PHP_SAPI === 'cli' || empty($_SERVER['HTTP_HOST']))) {
+        return rtrim($GLOBALS['config']['base_url'], '/') . '/' . ltrim($path, '/');
+    }
     $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
         || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     return ($https ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . url($path);

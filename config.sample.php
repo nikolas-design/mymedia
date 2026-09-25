@@ -15,6 +15,12 @@ return [
     // Από ποια διεύθυνση φεύγουν τα email (προσκλήσεις κ.λπ.)
     'mail_from' => 'no-reply@karagiozisclub.gr',
 
+    // Η πλήρης διεύθυνση της εφαρμογής (για τα email που στέλνει το cron)
+    'base_url' => 'https://www.karagiozisclub.gr/mymedia',
+
+    // Κλειδί για το cron.php όταν καλείται από URL (άλλαξέ το σε κάτι τυχαίο)
+    'cron_key' => 'ΑΛΛΑΞΕ_ΜΕ_ΤΥΧΑΙΟ_ΚΕΙΜΕΝΟ',
+
     // true μόνο όσο δοκιμάζεις: δείχνει τα σφάλματα PHP στη σελίδα
     'debug' => false,
 ];
