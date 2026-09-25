@@ -1,0 +1,5 @@
+# Τα αρχεία PHP/SQL των εργαλείων φορτώνονται μόνο μέσω της πύλης.
+# Στατικά αρχεία (π.χ. modules/<εργαλείο>/assets/) σερβίρονται κανονικά.
+<FilesMatch "\.(php|sql|md)$">
+  Require all denied
+</FilesMatch>
