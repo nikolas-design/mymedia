@@ -61,7 +61,7 @@ if (is_post()) {
                  'subscriptions', 'invoices', 'invoice_lines', 'tickets', 'ticket_messages', 'notifications',
                  'login_attempts', 'password_resets', 'migrations'];
         $tables = array_map(fn($r) => (string) array_values($r)[0], qall('SHOW TABLES'));
-        $foreign = array_values(array_diff($tables, $ours));
+        $foreign = array_values(array_filter(array_diff($tables, $ours), fn($t) => !str_starts_with($t, 'qr_')));
         if (in_array('migrations', $tables, true) && !qval("SHOW COLUMNS FROM migrations LIKE 'name'")) {
             $foreign[] = 'migrations';
         }

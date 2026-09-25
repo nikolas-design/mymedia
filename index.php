@@ -61,6 +61,14 @@ if (is_post()) {
     csrf_check();
 }
 
+// Δημόσιες σελίδες εργαλείων (χωρίς login). Το /q/<κωδικός> είναι σύντομη μορφή για το QR Boss.
+if (preg_match('#^q/([A-Za-z0-9]{4,16})(/.*)?$#', $path, $m)) {
+    dispatch_public('qr-boss', $m[1] . ($m[2] ?? ''));
+}
+if (preg_match('#^p/([a-z0-9-]+)(?:/(.*))?$#', $path, $m)) {
+    dispatch_public($m[1], $m[2] ?? '');
+}
+
 // Εργαλεία: /t/<slug>/...
 if (preg_match('#^t/([a-z0-9-]+)(?:/(.*))?$#', $path, $m)) {
     dispatch_module($m[1], $m[2] ?? '');

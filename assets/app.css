@@ -209,3 +209,18 @@ input[type=checkbox],input[type=radio]{width:auto;height:auto;accent-color:var(-
   body{background:#fff}
   .inv{border:0;padding:0}
 }
+
+/* ---------- Καρτέλες εργαλείων ---------- */
+.tabs{display:flex;gap:6px;overflow:auto;margin:0 0 18px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{white-space:nowrap;font-size:13px;font-weight:500;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.tabs a:hover{text-decoration:none;color:var(--ink)}
+.tabs a.on{background:var(--pl);color:var(--p);border-color:transparent}
+.tabs .cnt{background:var(--p);color:#fff;font-size:10px;font-weight:700;border-radius:9px;padding:1px 6px}
+.toolhd{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.toolhd h1{margin:0;font-size:24px}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:inline-flex;line-height:0}
+.qrbox svg{width:100%;height:auto}
+.thumb{width:56px;height:56px;border-radius:10px;object-fit:cover;flex-shrink:0;background:#f0f1f5}
+.sw{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px}
+.off{opacity:.55}
