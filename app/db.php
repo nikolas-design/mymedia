@@ -6,8 +6,8 @@ function db(): PDO
     static $pdo = null;
     if ($pdo === null) {
         $c = $GLOBALS['config']['db'];
-        $pdo = new PDO(
-            'mysql:host=' . $c['host'] . ';dbname=' . $c['name'] . ';charset=utf8mb4',
+        $connect = fn(string $host) => new PDO(
+            'mysql:host=' . $host . ';dbname=' . $c['name'] . ';charset=utf8mb4',
             $c['user'],
             $c['pass'],
             [
@@ -16,6 +16,16 @@ function db(): PDO
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]
         );
+        try {
+            $pdo = $connect($c['host']);
+        } catch (PDOException $e) {
+            // Με "localhost" η PHP ψάχνει socket αρχείο, που σε κάποια hosting είναι αλλού (σφάλμα 2002).
+            // Τότε δοκιμάζουμε σύνδεση μέσω TCP.
+            if ($c['host'] !== 'localhost' || !str_contains($e->getMessage(), '2002')) {
+                throw $e;
+            }
+            $pdo = $connect('127.0.0.1');
+        }
         $pdo->exec("SET time_zone = '" . date('P') . "'");
     }
     return $pdo;
