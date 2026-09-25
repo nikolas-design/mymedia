@@ -55,15 +55,46 @@ if (is_post()) {
         $error = password_problem($pass);
     }
     if (!$error) {
-        run_migrations();
-        q('INSERT INTO users (name, email, password_hash, is_admin) VALUES (?, ?, ?, 1)', [$name, $email, password_hash($pass, PASSWORD_DEFAULT)]);
-        $uid = (int) db()->lastInsertId();
+        // 1. Πίνακες. Αν κάτι αποτύχει, δείχνουμε το ακριβές μήνυμα: εδώ δεν υπάρχουν ακόμα δεδομένα πελατών.
+        try {
+            run_migrations();
+        } catch (Throwable $e) {
+            error_log((string) $e);
+            install_page('<h1>Η δημιουργία πινάκων <em>απέτυχε.</em></h1>'
+                . '<p class="lead">Στείλε αυτό το μήνυμα στον προγραμματιστή. Μπορείς να ξαναδοκιμάσεις με ασφάλεια όποτε θέλεις.</p>'
+                . '<div class="flash error" style="word-break:break-word">' . e($e->getMessage()) . '</div>'
+                . '<p class="small muted">Βάση: ' . e((string) qval('SELECT VERSION()')) . ' · PHP ' . e(PHP_VERSION) . '</p>'
+                . '<a class="btn" href="' . e(url('install.php')) . '">Ξανά</a>');
+        }
+
+        // 2. Λογαριασμός διαχειριστή (αν υπάρχει ήδη από προηγούμενη προσπάθεια, γίνεται διαχειριστής)
+        $hash = password_hash($pass, PASSWORD_DEFAULT);
+        $existing = q1('SELECT id FROM users WHERE email = ?', [$email]);
+        if ($existing) {
+            q('UPDATE users SET name = ?, password_hash = ?, is_admin = 1, active = 1 WHERE id = ?', [$name, $hash, $existing['id']]);
+            $uid = (int) $existing['id'];
+        } else {
+            q('INSERT INTO users (name, email, password_hash, is_admin) VALUES (?, ?, ?, 1)', [$name, $email, $hash]);
+            $uid = (int) db()->lastInsertId();
+        }
+
+        // 3. Δείγματα δεδομένων: προαιρετικά, μια αποτυχία εδώ δεν χαλάει την εγκατάσταση
+        $demoError = null;
         if (input('demo') === '1') {
-            seed_demo($uid);
+            try {
+                seed_demo($uid);
+            } catch (Throwable $e) {
+                error_log((string) $e);
+                if (db()->inTransaction()) {
+                    db()->rollBack();
+                }
+                $demoError = $e->getMessage();
+            }
         }
         login_user(q1('SELECT * FROM users WHERE id = ?', [$uid]));
         install_page('<h1>Έτοιμο! <em>🎉</em></h1>'
             . '<p class="lead">Η βάση στήθηκε και ο λογαριασμός σου δημιουργήθηκε.</p>'
+            . ($demoError ? '<div class="flash error" style="word-break:break-word">Τα δείγματα δεδομένων δεν μπήκαν όλα: ' . e($demoError) . '</div>' : '')
             . '<div class="flash info">Τελευταίο βήμα: <b>σβήσε το αρχείο install.php</b> από τον server (cPanel → File Manager).</div>'
             . '<a class="btn dark" href="' . e(url()) . '">Άνοιγμα της εφαρμογής</a>');
     }

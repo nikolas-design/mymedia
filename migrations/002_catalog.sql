@@ -1,7 +1,7 @@
 -- Αρχικός κατάλογος εργαλείων και πλάνων.
 -- Τιμές, περιγραφές και κατάσταση αλλάζουν από Διαχείριση → Εργαλεία.
 
-INSERT INTO settings (k, v) VALUES
+INSERT IGNORE INTO settings (k, v) VALUES
 ('company_name', 'MyMedia'),
 ('bank_name', 'Τράπεζα'),
 ('bank_iban', 'GR00 0000 0000 0000 0000 0000 000'),
@@ -9,7 +9,7 @@ INSERT INTO settings (k, v) VALUES
 ('invoice_due_days', '7'),
 ('support_email', '');
 
-INSERT INTO tools (slug, name, tagline, short, description, audience, features, icon, color, status, sort) VALUES
+INSERT IGNORE INTO tools (slug, name, tagline, short, description, audience, features, icon, color, status, sort) VALUES
 ('qr-boss', 'QR Boss', 'Κάθε τραπέζι, βιτρίνα και έντυπο γίνεται ψηφιακή εμπειρία.', 'Εμπειρίες QR',
  'Δυναμικά QR για μενού, προσφορές, Wi-Fi και social, που αλλάζουν περιεχόμενο χωρίς να ξανατυπωθούν.',
  'Εστίαση, καφέ, λιανική, εκδηλώσεις',
@@ -61,29 +61,39 @@ INSERT INTO tools (slug, name, tagline, short, description, audience, features, 
  'Φροντιστήρια, σχολές, γυμναστήρια', NULL, 'book', 'indigo', 'soon', 110);
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Standard', '1 τοποθεσία · δυναμικά QR · ψηφιακό μενού', 1900, 'month', 0, 1 FROM tools WHERE slug = 'qr-boss';
+SELECT t.id, 'Standard', '1 τοποθεσία · δυναμικά QR · ψηφιακό μενού', 1900, 'month', 0, 1 FROM tools t WHERE t.slug = 'qr-boss'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Standard');
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Pro', 'Έως 3 τοποθεσίες · κλήση σερβιτόρου · στατιστικά', 3900, 'month', 1, 2 FROM tools WHERE slug = 'qr-boss';
+SELECT t.id, 'Pro', 'Έως 3 τοποθεσίες · κλήση σερβιτόρου · στατιστικά', 3900, 'month', 1, 2 FROM tools t WHERE t.slug = 'qr-boss'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Pro');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Standard', '1 τοποθεσία · QR & smart link · αναφορά φήμης', 2400, 'month', 0, 1 FROM tools WHERE slug = 'review-booster';
+SELECT t.id, 'Standard', '1 τοποθεσία · QR & smart link · αναφορά φήμης', 2400, 'month', 0, 1 FROM tools t WHERE t.slug = 'review-booster'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Standard');
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Pro', 'Έως 3 τοποθεσίες · AI απαντήσεις · dashboard', 3900, 'month', 1, 2 FROM tools WHERE slug = 'review-booster';
+SELECT t.id, 'Pro', 'Έως 3 τοποθεσίες · AI απαντήσεις · dashboard', 3900, 'month', 1, 2 FROM tools t WHERE t.slug = 'review-booster'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Pro');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Standard', 'Απεριόριστοι προμηθευτές · 3 χρήστες', 1900, 'month', 1, 1 FROM tools WHERE slug = 'orderflow';
+SELECT t.id, 'Standard', 'Απεριόριστοι προμηθευτές · 3 χρήστες', 1900, 'month', 1, 1 FROM tools t WHERE t.slug = 'orderflow'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Standard');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Standard', '1 ταμείο · απεριόριστες βάρδιες · αναφορές', 1900, 'month', 1, 1 FROM tools WHERE slug = 'tameio';
+SELECT t.id, 'Standard', '1 ταμείο · απεριόριστες βάρδιες · αναφορές', 1900, 'month', 1, 1 FROM tools t WHERE t.slug = 'tameio'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Standard');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Standard', 'Έως 15 άτομα · αιτήματα αλλαγών', 1500, 'month', 1, 1 FROM tools WHERE slug = 'shifts';
+SELECT t.id, 'Standard', 'Έως 15 άτομα · αιτήματα αλλαγών', 1500, 'month', 1, 1 FROM tools t WHERE t.slug = 'shifts'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Standard');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Ετήσιο', 'Απεριόριστα ραντεβού · υπενθυμίσεις', 35000, 'year', 1, 1 FROM tools WHERE slug = 'appointments';
+SELECT t.id, 'Ετήσιο', 'Απεριόριστα ραντεβού · υπενθυμίσεις', 35000, 'year', 1, 1 FROM tools t WHERE t.slug = 'appointments'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Ετήσιο');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Care', 'Φιλοξενία · SSL · μηνιαίες αλλαγές', 2500, 'month', 1, 1 FROM tools WHERE slug = 'websites';
+SELECT t.id, 'Care', 'Φιλοξενία · SSL · μηνιαίες αλλαγές', 2500, 'month', 1, 1 FROM tools t WHERE t.slug = 'websites'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Care');
 
 INSERT INTO plans (tool_id, name, summary, price_cents, period, popular, sort)
-SELECT id, 'Standard', '12 posts τον μήνα · λεζάντες · ιδέες', 2900, 'month', 1, 1 FROM tools WHERE slug = 'ai-content';
+SELECT t.id, 'Standard', '12 posts τον μήνα · λεζάντες · ιδέες', 2900, 'month', 1, 1 FROM tools t WHERE t.slug = 'ai-content'
+  AND NOT EXISTS (SELECT 1 FROM plans x WHERE x.tool_id = t.id AND x.name = 'Standard');

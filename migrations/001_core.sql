@@ -1,11 +1,11 @@
 -- Βασικοί πίνακες της πύλης
 
-CREATE TABLE settings (
+CREATE TABLE IF NOT EXISTS settings (
   k VARCHAR(64) PRIMARY KEY,
   v TEXT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,
   email VARCHAR(190) NOT NULL UNIQUE,
@@ -16,7 +16,7 @@ CREATE TABLE users (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE businesses (
+CREATE TABLE IF NOT EXISTS businesses (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(160) NOT NULL,
   legal_name VARCHAR(190) NULL,
@@ -28,7 +28,7 @@ CREATE TABLE businesses (
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE memberships (
+CREATE TABLE IF NOT EXISTS memberships (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NOT NULL,
   user_id INT UNSIGNED NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE memberships (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE invitations (
+CREATE TABLE IF NOT EXISTS invitations (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NOT NULL,
   email VARCHAR(190) NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE invitations (
   FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE tools (
+CREATE TABLE IF NOT EXISTS tools (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   slug VARCHAR(40) NOT NULL UNIQUE,
   name VARCHAR(80) NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE tools (
   sort INT NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE plans (
+CREATE TABLE IF NOT EXISTS plans (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   tool_id INT UNSIGNED NOT NULL,
   name VARCHAR(60) NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE plans (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Αίτημα ενεργοποίησης εργαλείου από πελάτη
-CREATE TABLE tool_requests (
+CREATE TABLE IF NOT EXISTS tool_requests (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NOT NULL,
   tool_id INT UNSIGNED NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE tool_requests (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Η τιμή κρατιέται στη συνδρομή, ώστε αλλαγή τιμοκαταλόγου να μην αλλάζει υπάρχουσες συνδρομές
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NOT NULL,
   tool_id INT UNSIGNED NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE subscriptions (
   FOREIGN KEY (tool_id) REFERENCES tools(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE invoices (
+CREATE TABLE IF NOT EXISTS invoices (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NOT NULL,
   number VARCHAR(30) NOT NULL UNIQUE,
@@ -133,7 +133,7 @@ CREATE TABLE invoices (
   FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE invoice_lines (
+CREATE TABLE IF NOT EXISTS invoice_lines (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   invoice_id INT UNSIGNED NOT NULL,
   description VARCHAR(190) NOT NULL,
@@ -141,7 +141,7 @@ CREATE TABLE invoice_lines (
   FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE tickets (
+CREATE TABLE IF NOT EXISTS tickets (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NOT NULL,
   user_id INT UNSIGNED NULL,
@@ -152,7 +152,7 @@ CREATE TABLE tickets (
   FOREIGN KEY (business_id) REFERENCES businesses(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE ticket_messages (
+CREATE TABLE IF NOT EXISTS ticket_messages (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   ticket_id INT UNSIGNED NOT NULL,
   user_id INT UNSIGNED NULL,
@@ -163,7 +163,7 @@ CREATE TABLE ticket_messages (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Ειδοποιήσεις: business_id NULL σημαίνει ειδοποίηση για τους admin
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   business_id INT UNSIGNED NULL,
   title VARCHAR(190) NOT NULL,
@@ -173,7 +173,7 @@ CREATE TABLE notifications (
   KEY k_biz (business_id, read_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE login_attempts (
+CREATE TABLE IF NOT EXISTS login_attempts (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   email VARCHAR(190) NOT NULL,
   ip VARCHAR(45) NOT NULL,
@@ -182,7 +182,7 @@ CREATE TABLE login_attempts (
   KEY k_ip (ip, attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE password_resets (
+CREATE TABLE IF NOT EXISTS password_resets (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
   token_hash CHAR(64) NOT NULL UNIQUE,
