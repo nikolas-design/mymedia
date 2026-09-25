@@ -55,6 +55,29 @@ if (is_post()) {
         $error = password_problem($pass);
     }
     if (!$error) {
+        // 0. Η βάση πρέπει να είναι άδεια ή να έχει μόνο πίνακες του MyMedia (π.χ. από μισή εγκατάσταση).
+        //    Δεν αγγίζουμε ποτέ πίνακες άλλης εφαρμογής.
+        $ours = ['settings', 'users', 'businesses', 'memberships', 'invitations', 'tools', 'plans', 'tool_requests',
+                 'subscriptions', 'invoices', 'invoice_lines', 'tickets', 'ticket_messages', 'notifications',
+                 'login_attempts', 'password_resets', 'migrations'];
+        $tables = array_map(fn($r) => (string) array_values($r)[0], qall('SHOW TABLES'));
+        $foreign = array_values(array_diff($tables, $ours));
+        if (in_array('migrations', $tables, true) && !qval("SHOW COLUMNS FROM migrations LIKE 'name'")) {
+            $foreign[] = 'migrations';
+        }
+        if (in_array('businesses', $tables, true)
+            && stripos((string) q1("SHOW COLUMNS FROM businesses LIKE 'id'")['Type'], 'int unsigned') !== 0) {
+            $foreign[] = 'businesses';
+        }
+        if ($foreign) {
+            install_page('<h1>Η βάση <em>δεν είναι άδεια.</em></h1>'
+                . '<p class="lead">Βρέθηκαν πίνακες άλλης εφαρμογής. Για να μην πειραχτούν τα δεδομένα της, το MyMedia χρειάζεται <b>νέα, κενή βάση</b>.</p>'
+                . '<div class="flash error" style="word-break:break-word">' . e(implode(', ', array_unique($foreign))) . '</div>'
+                . '<p class="body">cPanel → MySQL Databases → φτιάξε νέα βάση, πρόσθεσε σε αυτή τον χρήστη με ALL PRIVILEGES, '
+                . 'και γράψε το όνομά της στο <b>config.php</b> (γραμμή <code>\'name\'</code>).</p>'
+                . '<a class="btn" href="' . e(url('install.php')) . '">Ξανά</a>');
+        }
+
         // 1. Πίνακες. Αν κάτι αποτύχει, δείχνουμε το ακριβές μήνυμα: εδώ δεν υπάρχουν ακόμα δεδομένα πελατών.
         try {
             run_migrations();
