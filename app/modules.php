@@ -232,3 +232,24 @@ function empty_days(int $days): array
     }
     return $out;
 }
+
+/**
+ * Σελίδες διαχείρισης ενός εργαλείου για τους admin της πλατφόρμας:
+ * /admin/t/<slug>/... → modules/<slug>/admin.php με $subpath και $tool
+ */
+function dispatch_module_admin(string $slug, string $subpath): never
+{
+    $user = require_admin();
+    $tool = q1('SELECT * FROM tools WHERE slug = ?', [$slug]);
+    if (!$tool || !preg_match('/^[a-z0-9-]+$/', $slug) || !is_file(module_dir($slug) . '/admin.php')) {
+        not_found();
+    }
+    $subpath = trim($subpath, '/');
+    require module_dir($slug) . '/admin.php';
+    exit;
+}
+
+function module_has_admin(string $slug): bool
+{
+    return preg_match('/^[a-z0-9-]+$/', $slug) === 1 && is_file(module_dir($slug) . '/admin.php');
+}

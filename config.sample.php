@@ -21,6 +21,10 @@ return [
     // Κλειδί για το cron.php όταν καλείται από URL (άλλαξέ το σε κάτι τυχαίο)
     'cron_key' => 'ΑΛΛΑΞΕ_ΜΕ_ΤΥΧΑΙΟ_ΚΕΙΜΕΝΟ',
 
+    // AI Content: κλειδί από το console.anthropic.com (κενό = το AI είναι ανενεργό)
+    'anthropic_api_key' => '',
+    'anthropic_model' => 'claude-opus-5',
+
     // true μόνο όσο δοκιμάζεις: δείχνει τα σφάλματα PHP στη σελίδα
     'debug' => false,
 ];
