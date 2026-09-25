@@ -33,3 +33,5 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--brand);border-co
 .list{text-align:left}
 .list .it{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
 .list .it:last-child{border-bottom:0}
+.row2>*{min-width:0}
+input[type=date],input[type=time]{min-width:0;max-width:100%}
